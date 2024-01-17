@@ -27,9 +27,9 @@ function AddUser() {
       ISBNumber:  Yup.string().required('Number is Required'),
       publishedDate: Yup.date().required('Date is Required').max(new Date()),
       author: Yup.object({
-        name: Yup.string().required('Authors name is required').max(30, 'Not exceed more than 30 characters').min(3, 'Atleast 3 characters'),
-        dob:Yup.date().required('Authors DOB is required'),
-        bio:Yup.string().required('Authors Bio is required').max(250, 'Not exceed more than 250 characters').min(15, 'Atleast 15 characters'),
+        name: Yup.string().required('Author name is required').max(30, 'Not exceed more than 30 characters').min(3, 'Atleast 3 characters'),
+        dob:Yup.date().required('Author DOB is required'),
+        bio:Yup.string().required('Author Bio is required').max(250, 'Not exceed more than 250 characters').min(15, 'Atleast 15 characters'),
       })
     }),
     onSubmit: async (values) => {

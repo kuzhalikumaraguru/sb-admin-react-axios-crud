@@ -13,22 +13,30 @@ function EditUser() {
   // let [batch, setBatch] = useState("");
   // let [mobile, setMobile] = useState("");
   let [initialValues, setValues] = useState({
-    name: '',
-    email: '',
-    mobile: '',
-    batch: ''
+    title: "",
+    ISBNumber: "",
+    publishedDate: "",
+    author: {
+      name: "",
+      dob: "",
+      bio: "",
+    }
   });
   let { id } = useParams();
   let navigate = useNavigate();
   let getData = async () => {
     try {
-      let res = await ApiService.get(`/users/${id}`);
+      let res = await ApiService.get(`/bookauthor/${id}`);
       if (res.status === 200) {
         setValues({
-          name: res.data.name,
-          email: res.data.email,
-          mobile: res.data.mobile,
-          batch: res.data.batch,
+          title: res.data.title,
+          ISBNumber: res.data.ISBNumber,
+          publishedDate: res.data.publishedDate,
+          author: {
+            name: res.data.author.name,
+            dob: res.data.author.dob,
+            bio: res.data.author.bio,
+          },
         });
         // setName(res.data.name);
         // setMobile(res.data.mobile);
@@ -40,16 +48,20 @@ function EditUser() {
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: Yup.object({
-      name:   Yup.string().required('Name is Required').max(20, 'Not exceed more than 20 characters').min(3, 'Atleast 3 characters'),
-      email:  Yup.string().required('Email is Required').email('Email is not valid'),
-      mobile: Yup.string().required('Mobile is Required').matches(/^\d{10}$/, 'Enter 10 digits') ,
-      batch:  Yup.string().required('Batch is Required')
+      title:   Yup.string().required('title is Required').max(75, 'Not exceed more than 75 characters').min(3, 'Atleast 3 characters'),
+      ISBNumber:  Yup.string().required('Number is Required'),
+      publishedDate: Yup.date().required('Date is Required').max(new Date()),
+      author: Yup.object({
+        name: Yup.string().required('Authors name is required').max(30, 'Not exceed more than 30 characters').min(3, 'Atleast 3 characters'),
+        dob:Yup.date().required('Authors DOB is required'),
+        bio:Yup.string().required('Authors Bio is required').max(250, 'Not exceed more than 50 characters').min(15, 'Atleast 15 characters'),
+      })
     }),
     enableReinitialize: true, //to reinitialize or reload the form to change then values
     onSubmit: async (values) => {
       values.id = id;
       try {
-        let res = await ApiService.put(`/users/${id}`, values);
+        let res = await ApiService.put(`/bookauthor/${id}`, values);
         if (res.status === 200) {
           navigate("/dashboard");
         }
@@ -81,75 +93,107 @@ function EditUser() {
       <div id="content">
         <div className="container-fluid">
           <div className="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 className="h3 mb-0 text-gray-800">Edit User</h1>
+            <h1 className="h3 mb-0 text-gray-800">Edit Book and Author details</h1>
           </div>
           <Form onSubmit={formik.handleSubmit}>
+            <h3>Book Details</h3>
             <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Title</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Name"
-                id="name"
-                name="name"
+                placeholder="title"
+                id="title"
+                name="title"
                 onChange={formik.handleChange}
-                value={formik.values.name}
+                value={formik.values.title}
                 onBlur={formik.handleBlur}
               />
-              {formik.touched.name && formik.errors.name ? (
-                <div style={{ color: "red" }}>{formik.errors.name}</div>
+              {formik.touched.title && formik.errors.title ? (
+                <div style={{ color: "red" }}>{formik.errors.title}</div>
               ) : null}
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Email address</Form.Label>
+              <Form.Label>ISBN Number</Form.Label>
               <Form.Control
-                type="email"
-                placeholder="Enter email"
-                id="email"
-                name="email"
+                type="text"
+                placeholder="ISBNumber"
+                id="ISBNumber"
+                name="ISBNumber"
                 onChange={formik.handleChange}
-                value={formik.values.email}
+                value={formik.values.ISBNumber}
                 onBlur={formik.handleBlur}
               />
-              {formik.touched.email && formik.errors.email ? (
-                <div style={{ color: "red" }}>{formik.errors.email}</div>
+              {formik.touched.ISBNumber && formik.errors.ISBNumber ? (
+                <div style={{ color: "red" }}>{formik.errors.ISBNumber}</div>
               ) : null}
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Mobile</Form.Label>
+              <Form.Label>Publication Date</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Mobile"
-                id="mobile"
-                name="mobile"
+                type="date"
+                placeholder="Enter date"
+                id="publishedDate"
+                name="publishedDate"
                 onChange={formik.handleChange}
-                value={formik.values.mobile}
+                value={formik.values.publishedDate}
                 onBlur={formik.handleBlur}
               />
-              {formik.touched.mobile && formik.errors.mobile ? (
-                <div style={{ color: "red" }}>{formik.errors.mobile}</div>
+              {formik.touched.publishedDate && formik.errors.publishedDate ? (
+                <div style={{ color: "red" }}>
+                  {formik.errors.publishedDate}
+                </div>
+              ) : null}
+            </Form.Group>
+            <h3>Author Details</h3>
+            <Form.Group className="mb-3">
+              <Form.Label>Author</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter author name"
+                name="author['name']"
+                onChange={formik.handleChange}
+                value={formik.values.author["name"]}
+                onBlur={formik.handleBlur}
+              />
+              {formik.touched.author?.name && formik.errors.author?.name ? (
+                <div style={{ color: "red" }}>{formik.errors.author?.name}</div>
               ) : null}
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Batch</Form.Label>
+              <Form.Label>Author DOB</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Batch"
-                id="batch"
-                name="batch"
+                type="date"
+                placeholder="Enter author date of birth"
+                name="author['dob']"
                 onChange={formik.handleChange}
-                value={formik.values.batch}
+                value={formik.values.author["dob"]}
                 onBlur={formik.handleBlur}
               />
-              {formik.touched.batch && formik.errors.batch ? (
-                <div style={{ color: "red" }}>{formik.errors.batch}</div>
+              {formik.touched.author?.dob && formik.errors.author?.dob ? (
+                <div style={{ color: "red" }}>{formik.errors.author?.dob}</div>
+              ) : null}
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Author Biography</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter author biography"
+                name="author.bio"
+                onChange={formik.handleChange}
+                value={formik.values.author.bio}
+                onBlur={formik.handleBlur}
+              />
+              {formik.touched.author?.bio && formik.errors.author?.bio ? (
+                <div style={{ color: "red" }}>{formik.errors.author?.bio}</div>
               ) : null}
             </Form.Group>
 
             <Button variant="primary" type="submit">
-              Update
+              Submit
             </Button>
           </Form>
         </div>
